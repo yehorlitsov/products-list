@@ -35,8 +35,10 @@ interface ProductsState {
   products: Product[];
   inventory: InventoryItem[];
   addProduct: (product: Product) => void;
-  addInventroyItem: (product: InventoryItem) => void;
+  setProducts: (products: Product[]) => void;
+  addInventroyItem: (inventoryItem: InventoryItem) => void;
   removeInventoryItem: (index: number) => void;
+  setInventory: (nventoryItems: InventoryItem[]) => void;
 }
 
 const useInventoryStore = create<ProductsState>((set) => ({
@@ -46,6 +48,11 @@ const useInventoryStore = create<ProductsState>((set) => ({
     set((state: ProductsState) => ({
       ...state,
       products: [...state.products, product],
+    })),
+  setProducts: (products: Product[]) =>
+    set((state: ProductsState) => ({
+      ...state,
+      products: products,
     })),
   addInventroyItem: (inventoryItem: InventoryItem) =>
     set((state: ProductsState) => {
@@ -73,6 +80,11 @@ const useInventoryStore = create<ProductsState>((set) => ({
     set((state) => ({
       ...state,
       inventory: state.inventory.filter((_, i) => i !== index),
+    })),
+  setInventory: (inventoryItems: InventoryItem[]) =>
+    set((state: ProductsState) => ({
+      ...state,
+      inventory: inventoryItems,
     })),
 }));
 

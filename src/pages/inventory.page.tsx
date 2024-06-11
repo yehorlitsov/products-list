@@ -5,75 +5,61 @@ import PageHeader from '../components/page-header';
 import useInventoryStore from '../store/inventory.store';
 import { useNavigate } from 'react-router-dom';
 import { RouterUrls } from '../utils/variables/router.variables';
-import { useState } from 'react';
+import AddInventoryItemForm from '../components/add-inventory-item-form';
+import { InventoryAPI } from '../services/api/inventory.api.service';
+import { useEffect, useState } from 'react';
+import { ShoppingBasket, Trash2 } from 'lucide-react';
+import Skeleton from 'react-loading-skeleton';
+
+const inventoryAPIService = new InventoryAPI();
+
+const IntventoryListLoading = () => {
+  return (
+    <>
+      {['', ''].map(() => (
+        <Card className='grid grid-cols-[32px_180px_1fr_50px] gap-2 items-center'>
+          <ShoppingBasket size={32} />
+          <Skeleton containerClassName='flex' className='h-6' />
+          <Skeleton containerClassName='flex' className='h-6 max-w-80' />
+          <Trash2
+            size={18}
+            className='justify-self-end cursor-pointer text-red-600 pointer-events-none'
+          />
+        </Card>
+      ))}
+    </>
+  );
+};
 
 const IntventoryPage = () => {
-  const { inventory, products, addInventroyItem } = useInventoryStore();
+  const { inventory, setInventory } = useInventoryStore();
+  const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
-
-  const [name, setName] = useState('');
-  const [quantity, setQuantity] = useState(0);
-
-  const handleNameChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setName(e.currentTarget.value);
-  };
-
-  const handleQuantityInput = (e: React.FormEvent<HTMLInputElement>) => {
-    setQuantity(+e.currentTarget.value);
-  };
 
   const handleAddProductClick = () => {
     navigate(`/${RouterUrls.ADD_PRODUCT}`);
   };
 
-  const handleAddInventoryItemClick = () => {
-    if (quantity <= 0) {
-      return;
-    }
+  useEffect(() => {
+    const requestProducts = async () => {
+      try {
+        const fetchedInventory = await inventoryAPIService.getInventory();
+        setInventory(fetchedInventory);
+      } catch (err) {
+        // setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    if (!name) {
-      return;
-    }
-
-    addInventroyItem({ name, quantity });
-  };
+    requestProducts();
+  }, [setInventory]);
 
   return (
     <main className='container m-auto'>
       <PageHeader>Intentory</PageHeader>
       <div className='flex flex-col gap-4'>
-        <Card className='grid grid-cols-1 md:grid-cols-[minmax(160px,_1fr)_minmax(160px,_1fr)_160px] gap-4'>
-          <div className='flex flex-col'>
-            <label htmlFor='name'>Name:</label>
-            <select
-              id='name'
-              value={name}
-              onChange={handleNameChange}
-              className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-            >
-              <option value=''>Select a category</option>
-
-              {products.map((product, index) => (
-                <option key={index} value={product.name}>
-                  {product.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className='flex flex-col'>
-            <label htmlFor='name'>Quantity:</label>
-            <input
-              type='number'
-              id='quantity'
-              value={quantity}
-              onInput={handleQuantityInput}
-              className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-            />
-          </div>
-          <div className='flex justify-center md:items-end md:justify-end'>
-            <Button onClick={handleAddInventoryItemClick}>Add Item</Button>
-          </div>{' '}
-        </Card>
+        <AddInventoryItemForm />
 
         <Card className='flex flex-col gap-4'>
           <div className='px-4 grid grid-cols-[32px_180px_1fr] gap-2 items-center'>
@@ -82,13 +68,17 @@ const IntventoryPage = () => {
             <span>Quantity</span>
           </div>
 
-          {inventory.map((inventoryItem, index) => (
-            <InventoryItemCard
-              key={index}
-              inventoryItem={inventoryItem}
-              index={index}
-            />
-          ))}
+          {loading ? (
+            <IntventoryListLoading />
+          ) : (
+            inventory.map((inventoryItem, index) => (
+              <InventoryItemCard
+                key={index}
+                inventoryItem={inventoryItem}
+                index={index}
+              />
+            ))
+          )}
         </Card>
       </div>
       <div className='p-4 flex justify-center'>

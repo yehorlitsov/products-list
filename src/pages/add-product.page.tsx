@@ -28,7 +28,7 @@ const AddProductPage = () => {
             className='flex flex-col h-full gap-4 justify-center'
             onSubmit={handleAddProduct}
           >
-            <div className='flex flex-col'>
+            <div className='flex flex-col gap-1'>
               <label htmlFor='name'>Name:</label>
               <input
                 type='text'
