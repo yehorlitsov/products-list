@@ -10,8 +10,10 @@ const AddProductPage = () => {
   const [name, setName] = useState<string>('');
   const { addProduct } = useInventoryStore();
   const navigate = useNavigate();
-  const handleAddProduct = () => {
-    addProduct({ name });
+  const handleAddProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    await addProduct({ name });
     navigate(`/${RouterUrls.INVENTORY_PAGE}`);
   };
 

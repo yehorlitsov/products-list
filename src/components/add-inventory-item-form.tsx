@@ -40,7 +40,7 @@ const AddInventoryItemForm = () => {
     setQuantity(+e.currentTarget.value);
   };
 
-  const handleAddInventoryItemClick = () => {
+  const handleAddInventoryItemClick = async () => {
     if (quantity <= 0) {
       return;
     }
@@ -49,7 +49,7 @@ const AddInventoryItemForm = () => {
       return;
     }
 
-    addInventroyItem({ name, quantity });
+    await addInventroyItem({ name, quantity });
   };
 
   useEffect(() => {

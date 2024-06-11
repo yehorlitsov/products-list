@@ -16,8 +16,11 @@ const inventoryAPIService = new InventoryAPI();
 const IntventoryListLoading = () => {
   return (
     <>
-      {['', ''].map(() => (
-        <Card className='grid grid-cols-[32px_180px_1fr_50px] gap-2 items-center'>
+      {['', ''].map((_, index) => (
+        <Card
+          key={index}
+          className='grid grid-cols-[32px_180px_1fr_50px] gap-2 items-center'
+        >
           <ShoppingBasket size={32} />
           <Skeleton containerClassName='flex' className='h-6' />
           <Skeleton containerClassName='flex' className='h-6 max-w-80' />

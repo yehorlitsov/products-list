@@ -1,35 +1,11 @@
 import { create } from 'zustand';
 import { Product } from '../models/product.interface';
 import { InventoryItem } from '../models/inventory-item.interface';
+import { ProductsAPI } from '../services/api/products.api.service';
+import { InventoryAPI } from '../services/api/inventory.api.service';
 
-const mockedProducts = [
-  {
-    name: 'shampoo',
-  },
-  {
-    name: 'milk',
-  },
-  {
-    name: 'eggs',
-  },
-  {
-    name: 'beef burger',
-  },
-  {
-    name: 'new pr',
-  },
-];
-
-const mockedInventory = [
-  {
-    name: 'milk',
-    quantity: 2,
-  },
-  {
-    name: 'eggs',
-    quantity: 3,
-  },
-];
+const productsAPIService = new ProductsAPI();
+const inventoryAPIService = new InventoryAPI();
 
 interface ProductsState {
   products: Product[];
@@ -41,46 +17,47 @@ interface ProductsState {
   setInventory: (nventoryItems: InventoryItem[]) => void;
 }
 
-const useInventoryStore = create<ProductsState>((set) => ({
-  products: mockedProducts || [],
-  inventory: mockedInventory || [],
-  addProduct: (product: Product) =>
+const useInventoryStore = create<ProductsState>((set, get) => ({
+  products: [],
+  inventory: [],
+  addProduct: async (product: Product) => {
+    const newProduct = await productsAPIService.addProduct(product);
+
     set((state: ProductsState) => ({
       ...state,
-      products: [...state.products, product],
-    })),
+      products: [...state.products, newProduct],
+    }));
+  },
   setProducts: (products: Product[]) =>
     set((state: ProductsState) => ({
       ...state,
       products: products,
     })),
-  addInventroyItem: (inventoryItem: InventoryItem) =>
-    set((state: ProductsState) => {
-      const existingItem = state.inventory.find(
-        (item) => item.name === inventoryItem.name
-      );
+  addInventroyItem: async (inventoryItem: InventoryItem) => {
+    const state = get();
 
-      if (existingItem) {
-        return {
-          ...state,
-          inventory: state.inventory.map((item) =>
-            item.name === inventoryItem.name
-              ? { ...item, quantity: item.quantity + inventoryItem.quantity }
-              : item
-          ),
-        };
-      }
+    const newInventroy = await inventoryAPIService.updateInventory([
+      ...state.inventory,
+      inventoryItem,
+    ]);
 
-      return {
-        ...state,
-        inventory: [...state.inventory, inventoryItem],
-      };
-    }),
-  removeInventoryItem: (index) =>
+    set((state: ProductsState) => ({
+      ...state,
+      inventory: newInventroy,
+    }));
+  },
+  removeInventoryItem: async (index) => {
+    const state = get();
+    const itemsToUpdate = state.inventory.filter((_, i) => i !== index);
+    const newInventroy = await inventoryAPIService.updateInventory(
+      itemsToUpdate
+    );
+
     set((state) => ({
       ...state,
-      inventory: state.inventory.filter((_, i) => i !== index),
-    })),
+      inventory: newInventroy,
+    }));
+  },
   setInventory: (inventoryItems: InventoryItem[]) =>
     set((state: ProductsState) => ({
       ...state,
