@@ -2,7 +2,11 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import Root from './root.tsx';
 import './index.scss';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import {
+  createBrowserRouter,
+  Navigate,
+  RouterProvider,
+} from 'react-router-dom';
 import { RouterUrls } from './utils/variables/router.variables.ts';
 import IntventoryPage from './pages/inventory.page.tsx';
 import AddProductPage from './pages/add-product.page.tsx';
@@ -14,7 +18,11 @@ const router = createBrowserRouter([
     // loader: rootLoader, TODO
     children: [
       {
-        path: RouterUrls.INVENTIRY_PAGE,
+        path: '/',
+        element: <Navigate to={RouterUrls.INVENTORY_PAGE} replace />,
+      },
+      {
+        path: RouterUrls.INVENTORY_PAGE,
         element: <IntventoryPage />,
         // loader: loader, TODO
       },

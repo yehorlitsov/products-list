@@ -3,7 +3,9 @@ import { Outlet } from 'react-router-dom';
 function Root() {
   return (
     <>
-      <Outlet />
+      <main className='bg-background-main min-h-svh'>
+        <Outlet />
+      </main>
     </>
   );
 }
